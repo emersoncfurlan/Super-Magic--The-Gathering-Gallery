@@ -1,1 +1,1 @@
-# Super Magic: The Gathering Gallery
+# Cards of the MTG
