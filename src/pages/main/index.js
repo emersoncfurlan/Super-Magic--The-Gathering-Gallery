@@ -6,28 +6,32 @@ import { Link } from 'react-router-dom';
 export default class Main extends Component {
     state = {
         products: [],
-        page : 1,
+        next_page: "",
+        page : 0,
     }
     componentDidMount(){
         this.loadProducts();
     }
-    loadProducts = async () => {
-        const response  = await api.get("?");
-        //console.log('response data aqui =>', response.data);
-        const {data} = response.data; 
-        
-        this.setState({ products: data}, () => {
-            console.log('Aqui ==>', this.state);
+    loadProducts = async (page=0) => {
+        const response  = await api.get('?');
+        const { data, next_page } = response.data; 
+        //console.log('response ==>', response);
+        //console.log('response data ==>', response.data);
+        //console.log('response data.nextpage ==>', next_page);
+
+        this.setState({ products: data, next_page, page}, () => {
+           //console.log('Aqui ==>', this.state);
           });
-        //console.log('Aqui state =>',this.state);       
-        //console.log('Aqui response =>',response);
+
     };
+
      prevPage = () =>{
         const { page } = this.state;
         if (page === 1) return;
         const pageNumber = page - 1;
         this.loadProducts(pageNumber);
     }
+
     nextPage = () =>{
         const { page, products } = this.state;
         if(page === products.has_more) return;
@@ -35,33 +39,30 @@ export default class Main extends Component {
         this.loadProducts(pageNumber);
     } 
 
-    //colocar os botões depois que corrigir: page
-
-
     render(){
-        const { products, page} = this.state;
-        return products.length > 0 ? (
+        const { products, page } = this.state;
+        return  products.length > 0 &&
             <div className="body">
                 <div className="product-list">
                     {products.map((product, key) => (
                         <article key={key}>
-                            <strong>{product.oracle_text}</strong>
+                            <strong>{product.name} - {product.artist}</strong>
+                            <div className="image">
+                                <img src={product.image_uris.small} alt={product.name}></img>         
+                            </div> 
                             <p>{product.oracle_text}</p>
                             <Link to={`/products/${product.name}`}>Acessar</Link>
                         </article>
                     ))}
+                        <div className="actions">
+                        <button disabled={page === 0} onClick={this.prevPage}>
+                        Anterior
+                        </button>
+                        <button onClick={this.nextPage}>
+                        Próximo
+                        </button>
+                    </div>
                 </div>
-                <div className="actions">
-                    <button disabled={page === 1} onClick={this.prevPage}>
-                    Anterior
-                    </button>
-                    <button disabled={products.has_more}onClick={this.nextPage}>
-                    Próximo
-                    </button>
             </div>
-            </div>
-        ) : (
-          null
-        )
     }
 }
