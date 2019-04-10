@@ -6,17 +6,17 @@ import { Link } from 'react-router-dom';
 export default class Main extends Component {
     state = {
         products: [],
-        productInfo: {},
+        page : 1,
     }
     componentDidMount(){
         this.loadProducts();
     }
     loadProducts = async () => {
         const response  = await api.get("?");
-        //console.log('response data aqui =>', response.data.data);
-        const {docs, ...productInfo } = response.data.data; 
-        //this.setState({ products: docs, productInfo });
-        this.setState({ products: docs, productInfo }, () => {
+        //console.log('response data aqui =>', response.data);
+        const {data} = response.data; 
+        
+        this.setState({ products: data}, () => {
             console.log('Aqui ==>', this.state);
           });
         //console.log('Aqui state =>',this.state);       
@@ -29,20 +29,23 @@ export default class Main extends Component {
         this.loadProducts(pageNumber);
     }
     nextPage = () =>{
-        const { page, productInfo } = this.state;
-        if(page === productInfo.pages) return;
+        const { page, products } = this.state;
+        if(page === products.has_more) return;
         const pageNumber = page + 1;
         this.loadProducts(pageNumber);
     } 
-    
+
+    //colocar os botões depois que corrigir: page
+
+
     render(){
-        const { products, page, productInfo } = this.state;
-        return products.lenght > 0 ? (
+        const { products, page} = this.state;
+        return products.length > 0 ? (
             <div className="body">
                 <div className="product-list">
                     {products.map((product, key) => (
                         <article key={key}>
-                            <strong>{product.name}</strong>
+                            <strong>{product.oracle_text}</strong>
                             <p>{product.oracle_text}</p>
                             <Link to={`/products/${product.name}`}>Acessar</Link>
                         </article>
@@ -52,10 +55,10 @@ export default class Main extends Component {
                     <button disabled={page === 1} onClick={this.prevPage}>
                     Anterior
                     </button>
-                    <button disabled={page === productInfo.pages}onClick={this.nextPage}>
+                    <button disabled={products.has_more}onClick={this.nextPage}>
                     Próximo
                     </button>
-                </div>
+            </div>
             </div>
         ) : (
           null
